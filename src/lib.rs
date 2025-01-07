@@ -1,5 +1,5 @@
 #[cxx::bridge]
-mod ffi {
+pub mod ffi {
     unsafe extern "C++" {
         include!("timetagger-rs/src/timetagger.h");
         pub type TT;
