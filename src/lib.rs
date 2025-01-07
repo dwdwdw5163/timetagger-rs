@@ -1,5 +1,3 @@
-pub mod ffi;
-
 #[cxx::bridge]
 pub mod ffi {
     unsafe extern "C++" {
