@@ -2,11 +2,11 @@
 
 #include "timetagger.h"
 #include <memory>
+#include <timetagger/Iterators.h>
 
 
 
 TT::TT() {
-//  t = createTimeTaggerNetwork(address);
   t = createTimeTagger();
   t->setTriggerLevel(1, 0.1);
   t->setTriggerLevel(2, -0.03);
@@ -20,6 +20,8 @@ TT::TT() {
   c2 = std::make_unique<Correlation>(t, 3, 1, 50, 500);
   c3 = std::make_unique<Correlation>(t, 5, 1, 50, 500);
   c4 = std::make_unique<Correlation>(t, 6, 1, 50, 500);
+
+  cnt = std::make_unique<Counter>(t, std::vector<channel_t>{2,3,5,6}, 1e9, 1000);
   std::cout << "TimeTagger Instance Created" << std::endl;
 }
 
@@ -28,18 +30,26 @@ TT::~TT() {
   std::cout << "TimeTagger Instance Destroyed" << std::endl;
 }
 
-std::vector<int32_t> TT::getData() const{
+std::vector<int32_t> TT::getCounterData() const {
+  std::vector<int32_t> data;
+
+  cnt->getData([&data](size_t size1, size_t size2) {
+    data.resize(size1*size2);
+    return data.data();
+  }, true);
+
+  return data;
+}
+
+
+std::vector<int32_t> TT::getCorrelationData() const{
   std::vector<int32_t> data;
   std::vector<int32_t> data1, data2, data3, data4;
 
-  c1->startFor(1e12, true);
-  c2->startFor(1e12, true);
-  c3->startFor(1e12, true);
-  c4->startFor(1e12, true);
-  c1->waitUntilFinished();
-  c2->waitUntilFinished();
-  c3->waitUntilFinished();
-  c4->waitUntilFinished();
+  c1->clear();
+  c2->clear();
+  c3->clear();
+  c4->clear();  
 
   c1->getData([&data1](size_t size) {
       data1.resize(size);
@@ -74,8 +84,14 @@ std::unique_ptr<TT> new_timetagger() {
   return std::make_unique<TT>();
 }
 
-std::unique_ptr<std::vector<int32_t>> get_data(const TT &tt) {
-  std::vector<int32_t> data = tt.getData();
+std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt) {
+  std::vector<int32_t> data = tt.getCounterData();
+  return std::make_unique<std::vector<int32_t>>(data);
+}
+
+
+std::unique_ptr<std::vector<int32_t>> get_correlation_data(const TT &tt) {
+  std::vector<int32_t> data = tt.getCorrelationData();
   return std::make_unique<std::vector<int32_t>>(data);
 }
 
