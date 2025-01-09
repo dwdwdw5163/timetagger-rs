@@ -9,6 +9,9 @@ pub mod ffi {
     }
 }
 
+unsafe impl Send for ffi::TT {}
+unsafe impl Sync for ffi::TT {}
+
 #[cfg(test)]
 mod tests {
     use std::thread::sleep;
