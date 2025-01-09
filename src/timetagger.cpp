@@ -21,7 +21,7 @@ TT::TT() {
   c3 = std::make_unique<Correlation>(t, 5, 1, 50, 500);
   c4 = std::make_unique<Correlation>(t, 6, 1, 50, 500);
 
-  cnt = std::make_unique<Counter>(t, std::vector<channel_t>{2,3,5,6}, 1e9, 1000);
+  cnt = std::make_unique<Counter>(t, std::vector<channel_t>{2,3,5,6}, 1e10, 1000);
   std::cout << "TimeTagger Instance Created" << std::endl;
 }
 
