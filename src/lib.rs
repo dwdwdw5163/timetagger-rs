@@ -3,8 +3,6 @@ pub mod ffi {
     unsafe extern "C++" {
         include!("timetagger-rs/src/timetagger.h");
         pub type TT;
-        impl Send for TT{}
-        impl Sync for TT{}
         pub fn new_timetagger() -> UniquePtr<TT>;
         pub fn get_correlation_data(tt: &TT) -> UniquePtr<CxxVector<i32>>;
         pub fn get_counter_data(tt: &TT) -> UniquePtr<CxxVector<i32>>;
