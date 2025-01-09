@@ -9,11 +9,11 @@
 TT::TT() {
   t = createTimeTagger();
   t->setTriggerLevel(1, 0.1);
-  t->setTriggerLevel(2, -0.03);
-  t->setTriggerLevel(3, -0.03);
-  t->setTriggerLevel(4, -0.03);
-  t->setTriggerLevel(5, -0.03);
-  t->setTriggerLevel(6, -0.03);
+  t->setTriggerLevel(2, -0.07);
+  t->setTriggerLevel(3, -0.07);
+  t->setTriggerLevel(4, -0.07);
+  t->setTriggerLevel(5, -0.07);
+  t->setTriggerLevel(6, -0.07);
 
 
   c1 = std::make_unique<Correlation>(t, 2, 1, 50, 500);
