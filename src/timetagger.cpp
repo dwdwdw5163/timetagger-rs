@@ -46,11 +46,6 @@ std::vector<int32_t> TT::getCorrelationData() const{
   std::vector<int32_t> data;
   std::vector<int32_t> data1, data2, data3, data4;
 
-  c1->clear();
-  c2->clear();
-  c3->clear();
-  c4->clear();  
-
   c1->getData([&data1](size_t size) {
       data1.resize(size);
       return data1.data();
@@ -75,6 +70,11 @@ std::vector<int32_t> TT::getCorrelationData() const{
   data.insert(data.end(), data2.begin(), data2.end());
   data.insert(data.end(), data3.begin(), data3.end());
   data.insert(data.end(), data4.begin(), data4.end());
+
+  c1->clear();
+  c2->clear();
+  c3->clear();
+  c4->clear();  
 
   return data;
 }
