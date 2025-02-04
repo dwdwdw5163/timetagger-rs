@@ -11,7 +11,7 @@ pub mod ffi {
         pub type Correlation;
         pub type Counter;
 
-        pub fn TTcreateTimeTaggerNetwork(address: &str) -> UniquePtr<TimeTaggerNetwork>;
+        pub fn TTcreateTimeTaggerNetwork(address: &CxxString) -> UniquePtr<TimeTaggerNetwork>;
         pub fn TTfreeTimeTaggerNetwork(t: &TimeTaggerNetwork);
         pub fn TTsetTriggerLevel(t: &TimeTaggerNetwork, channel: i32, level: f64);
         pub fn TTcreateCorrelation(t: &TimeTaggerNetwork, channel1: i32, channel2: i32, bin_width: i32, max_count: i32) -> UniquePtr<Correlation>;
