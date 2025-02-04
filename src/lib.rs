@@ -1,7 +1,7 @@
 #[cxx::bridge]
 pub mod ffi {
     unsafe extern "C++" {
-        include!("your_header.h");
+        include!("timetagger-rs/src/timetagger.h");
         
         // Type definitions
         type TT;
