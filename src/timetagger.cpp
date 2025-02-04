@@ -3,6 +3,7 @@
 #include "timetagger.h"
 #include <memory>
 #include <timetagger/Iterators.h>
+#include <timetagger/TimeTagger.h>
 
 
 
@@ -98,8 +99,8 @@ std::unique_ptr<std::vector<int32_t>> get_correlation_data(const TT &tt) {
 
 
 
-std::unique_ptr<TimeTaggerNetwork> TTcreateTimeTaggerNetwork(const std::string &address) {
-  return std::make_unique<TimeTaggerNetwork>(createTimeTaggerNetwork(address));
+TimeTaggerNetwork* TTcreateTimeTaggerNetwork(const std::string &address) {
+  return createTimeTaggerNetwork(address);
 }
 
 void TTfreeTimeTaggerNetwork(TimeTaggerNetwork *t) {

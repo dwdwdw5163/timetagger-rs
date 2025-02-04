@@ -7,7 +7,6 @@
 #include <vector>
 #include <memory>
 
-
 class TT {
 public:
   TT();
@@ -28,11 +27,12 @@ private:
   std::unique_ptr<Counter> cnt;
 };
 
+
 std::unique_ptr<TT> new_timetagger();
 std::unique_ptr<std::vector<int32_t>> get_correlation_data(const TT &tt);
 std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);
 
-std::unique_ptr<TimeTaggerNetwork> TTcreateTimeTaggerNetwork(const std::string &address);
+TimeTaggerNetwork* TTcreateTimeTaggerNetwork(const std::string &address);
 void TTfreeTimeTaggerNetwork(TimeTaggerNetwork *t);
 void TTsetTriggerLevel(TimeTaggerNetwork *t, int32_t channel, double level);
 
@@ -42,8 +42,8 @@ std::unique_ptr<std::vector<int32_t>> CorrelationGetData(Correlation &c);
 std::unique_ptr<Counter> TTcreateCounter(TimeTaggerNetwork *t, const std::vector<int32_t> &channels, double bin_width, int32_t max_count);
 std::unique_ptr<std::vector<int32_t>> CounterGetData(Counter &c);
 void CorrelationStart(Correlation &c);
-void CorrelationStartFor(Correlation &c, int64_t capture_duration, bool clear = true);
+void CorrelationStartFor(Correlation &c, int64_t capture_duration, bool clear);
 void CorrelationStop(Correlation &c);
-bool CorrelationWaitUntilFinished(Correlation &c, int64_t timeout = -1);
+bool CorrelationWaitUntilFinished(Correlation &c, int64_t timeout);
 
 #endif // TIMETAGGER_H

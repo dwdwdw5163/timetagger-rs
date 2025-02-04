@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/timetagger-rs.iml" filepath="$PROJECT_DIR$/.idea/timetagger-rs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/timetagger-rs2.iml" filepath="$PROJECT_DIR$/.idea/timetagger-rs2.iml" />
     </modules>
   </component>
 </project>
