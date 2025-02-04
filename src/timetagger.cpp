@@ -123,7 +123,7 @@ std::unique_ptr<std::vector<int32_t>> CorrelationGetData(Correlation &c) {
   return std::make_unique<std::vector<int32_t>>(data);
 }
 
-std::unique_ptr<Counter> TTcreateCounter(TimeTaggerNetwork *t, const std::vector<int32_t> channels, double bin_width, int32_t max_count) {
+std::unique_ptr<Counter> TTcreateCounter(TimeTaggerNetwork *t, const std::vector<int32_t> &channels, double bin_width, int32_t max_count) {
   return std::make_unique<Counter>(t, channels, bin_width, max_count);
 }
 
