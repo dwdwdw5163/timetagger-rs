@@ -1,7 +1,7 @@
 use cxx::{CxxVector, UniquePtr};
 
 #[cxx::bridge]
-pub mod ffi {
+mod ffi {
     unsafe extern "C++" {
         include!("timetagger-rs/src/timetagger.h");
 
@@ -39,7 +39,7 @@ pub mod ffi {
         // Counter functions
         unsafe fn TTcreateCounter(
             t: *mut TimeTaggerNetwork,
-            channels: &Vec<i32>,
+            channels: Vec<i32>,
             bin_width: f64,
             max_count: i32,
         ) -> UniquePtr<Counter>;
@@ -51,7 +51,6 @@ pub mod ffi {
 // Implement Send and Sync for TT
 unsafe impl Send for ffi::TT {}
 unsafe impl Sync for ffi::TT {}
-
 
 pub struct TimeTagger {
     instance: *mut ffi::TimeTaggerNetwork,
@@ -68,7 +67,7 @@ pub struct Counter {
 impl TimeTagger {
     pub fn new(addr: &str) -> Self {
         cxx::let_cxx_string!(addr = addr);
-        let instance = unsafe { ffi::TTcreateTimeTaggerNetwork(&addr) };
+        let instance = ffi::TTcreateTimeTaggerNetwork(&addr);
         Self { instance }
     }
 
@@ -78,13 +77,22 @@ impl TimeTagger {
         }
     }
 
-    pub fn create_correlation(&self, channel1: i32, channel2: i32, bin_width: i32, max_count: i32) -> Correlation {
-        let correlation = unsafe { ffi::TTcreateCorrelation(self.instance, channel1, channel2, bin_width, max_count) };
+    pub fn create_correlation(
+        &self,
+        channel1: i32,
+        channel2: i32,
+        bin_width: i32,
+        max_count: i32,
+    ) -> Correlation {
+        let correlation = unsafe {
+            ffi::TTcreateCorrelation(self.instance, channel1, channel2, bin_width, max_count)
+        };
         Correlation { correlation }
     }
 
     pub fn create_counter(&self, channels: Vec<i32>, bin_width: f64, max_count: i32) -> Counter {
-        let counter = unsafe { ffi::TTcreateCounter(self.instance, &channels, bin_width, max_count) };
+        let counter =
+            unsafe { ffi::TTcreateCounter(self.instance, channels, bin_width, max_count) };
         Counter { counter }
     }
 }
@@ -92,6 +100,7 @@ impl TimeTagger {
 impl Drop for TimeTagger {
     fn drop(&mut self) {
         unsafe {
+            println!("Dropping TimeTagger");
             ffi::TTfreeTimeTaggerNetwork(self.instance);
         }
     }
@@ -115,22 +124,24 @@ impl Correlation {
     }
 
     pub fn get_data(&mut self) -> Vec<i32> {
-        ffi::CorrelationGetData(self.correlation.pin_mut()).into_iter().collect()
+        ffi::CorrelationGetData(self.correlation.pin_mut())
+            .into_iter()
+            .cloned()
+            .collect()
     }
 }
 
 impl Counter {
     pub fn get_data(&mut self) -> Vec<i32> {
-        ffi::CounterGetData(self.counter.pin_mut()).into_iter().collect()
+        ffi::CounterGetData(self.counter.pin_mut())
+            .into_iter()
+            .cloned()
+            .collect()
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
-    use cxx::let_cxx_string;
-    use ffi::{TTfreeTimeTaggerNetwork, TTsetTriggerLevel};
     use std::{thread::sleep, time::Duration};
 
     use super::*;
