@@ -15,7 +15,7 @@ pub mod ffi {
         fn get_counter_data(tt: &TT) -> UniquePtr<CxxVector<i32>>;
         
         // TimeTaggerNetwork functions
-        fn TTcreateTimeTaggerNetwork(address: &str) -> UniquePtr<TimeTaggerNetwork>;
+        fn TTcreateTimeTaggerNetwork(address: &CxxString) -> UniquePtr<TimeTaggerNetwork>;
         unsafe fn TTfreeTimeTaggerNetwork(t: *mut TimeTaggerNetwork);
         unsafe fn TTsetTriggerLevel(t: *mut TimeTaggerNetwork, channel: i32, level: f64);
         
@@ -28,11 +28,11 @@ pub mod ffi {
             max_count: i32,
         ) -> UniquePtr<Correlation>;
         
-        fn CorrelationGetData(c: &Correlation) -> UniquePtr<CxxVector<i32>>;
-        fn CorrelationStart(c: &Correlation);
-        fn CorrelationStartFor(c: &Correlation, capture_duration: i64, clear: bool);
-        fn CorrelationStop(c: &Correlation);
-        fn CorrelationWaitUntilFinished(c: &Correlation, timeout: i64) -> bool;
+        fn CorrelationGetData(c: Pin<&mut Correlation>) -> UniquePtr<CxxVector<i32>>;
+        fn CorrelationStart(c: Pin<&mut Correlation>);
+        fn CorrelationStartFor(c: Pin<&mut Correlation>, capture_duration: i64, clear: bool);
+        fn CorrelationStop(c: Pin<&mut Correlation>);
+        fn CorrelationWaitUntilFinished(c: Pin<&mut Correlation>, timeout: i64) -> bool;
         
         // Counter functions
         unsafe fn TTcreateCounter(
@@ -42,7 +42,7 @@ pub mod ffi {
             max_count: i32,
         ) -> UniquePtr<Counter>;
         
-        fn CounterGetData(c: &Counter) -> UniquePtr<CxxVector<i32>>;
+        fn CounterGetData(c: Pin<&mut Counter>) -> UniquePtr<CxxVector<i32>>;
     }
 }
 
