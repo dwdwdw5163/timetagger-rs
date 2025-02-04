@@ -33,7 +33,7 @@ std::unique_ptr<std::vector<int32_t>> get_correlation_data(const TT &tt);
 std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);
 
 std::unique_ptr<TimeTaggerNetwork> TTcreateTimeTaggerNetwork(const std::string &address);
-void TTfreeTimeTaggerNetwork(TimeTaggerNetwork t);
+void TTfreeTimeTaggerNetwork(TimeTaggerNetwork *t);
 void TTsetTriggerLevel(TimeTaggerNetwork *t, int32_t channel, double level);
 
 std::unique_ptr<Correlation> TTcreateCorrelation(TimeTaggerNetwork *t, int32_t channel1, int32_t channel2, int32_t bin_width, int32_t max_count);
