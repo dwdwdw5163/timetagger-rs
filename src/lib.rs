@@ -2,25 +2,32 @@
 pub mod ffi {
     unsafe extern "C++" {
         include!("timetagger-rs/src/timetagger.h");
+        
+        // TT related types and functions
         pub type TT;
         pub fn new_timetagger() -> UniquePtr<TT>;
         pub fn get_correlation_data(tt: &TT) -> UniquePtr<CxxVector<i32>>;
         pub fn get_counter_data(tt: &TT) -> UniquePtr<CxxVector<i32>>;
 
+        // TimeTaggerNetwork related types and functions
         pub type TimeTaggerNetwork;
-        pub type Correlation;
-        pub type Counter;
-
         pub fn TTcreateTimeTaggerNetwork(address: &CxxString) -> UniquePtr<TimeTaggerNetwork>;
-        pub fn TTsetTriggerLevel(t: &TimeTaggerNetwork, channel: i32, level: f64);
-        pub fn TTcreateCorrelation(t: &TimeTaggerNetwork, channel1: i32, channel2: i32, bin_width: i32, max_count: i32) -> UniquePtr<Correlation>;
-        pub fn CorrelationGetData(c: &Correlation) -> UniquePtr<CxxVector<i32>>;
-        pub fn TTcreateCounter(t: &TimeTaggerNetwork, channels: &CxxVector<i32>, bin_width: f64, max_count: i32) -> UniquePtr<Counter>;
-        pub fn CounterGetData(c: &Counter) -> UniquePtr<CxxVector<i32>>;
-        pub fn CorrelationStart(c: &Correlation);
-        pub fn CorrelationStartFor(c: &Correlation, capture_duration: i64, clear: bool);
-        pub fn CorrelationStop(c: &Correlation);
-        pub fn CorrelationWaitUntilFinished(c: &Correlation, timeout: i64) -> bool;
+        pub fn TTfreeTimeTaggerNetwork(t: Pin<&mut TimeTaggerNetwork>);
+        pub fn TTsetTriggerLevel(t: Pin<&mut TimeTaggerNetwork>, channel: i32, level: f64);
+
+        // Correlation related types and functions
+        pub type Correlation;
+        pub fn TTcreateCorrelation(t: Pin<&mut TimeTaggerNetwork>, channel1: i32, channel2: i32, bin_width: i32, max_count: i32) -> UniquePtr<Correlation>;
+        pub fn CorrelationGetData(c: Pin<&mut Correlation>) -> UniquePtr<CxxVector<i32>>;
+        pub fn CorrelationStart(c: Pin<&mut Correlation>);
+        pub fn CorrelationStartFor(c: Pin<&mut Correlation>, capture_duration: i64, clear: bool);
+        pub fn CorrelationStop(c: Pin<&mut Correlation>);
+        pub fn CorrelationWaitUntilFinished(c: Pin<&mut Correlation>, timeout: i64) -> bool;
+
+        // Counter related types and functions
+        pub type Counter;
+        pub fn TTcreateCounter(t: Pin<&mut TimeTaggerNetwork>, channels: &CxxVector<i32>, bin_width: f64, max_count: i32) -> UniquePtr<Counter>;
+        pub fn CounterGetData(c: Pin<&mut Counter>) -> UniquePtr<CxxVector<i32>>;
     }
 }
 
