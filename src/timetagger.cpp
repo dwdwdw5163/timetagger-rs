@@ -97,3 +97,57 @@ std::unique_ptr<std::vector<int32_t>> get_correlation_data(const TT &tt) {
 }
 
 
+
+std::unique_ptr<TimeTaggerNetwork> TTcreateTimeTaggerNetwork(const std::string &address) {
+  return std::make_unique<TimeTaggerNetwork>(createTimeTaggerNetwork(address));
+}
+
+void TTfreeTimeTaggerNetwork(TimeTaggerNetwork *t) {
+  freeTimeTagger(t);
+}
+
+void TTsetTriggerLevel(TimeTaggerNetwork *t, int32_t channel, double level) {
+  t->setTriggerLevel(channel, level);
+}
+
+std::unique_ptr<Correlation> TTcreateCorrelation(TimeTaggerNetwork *t, int32_t channel1, int32_t channel2, int32_t bin_width, int32_t max_count) {
+  return std::make_unique<Correlation>(t, channel1, channel2, bin_width, max_count);
+}
+
+std::unique_ptr<std::vector<int32_t>> CorrelationGetData(Correlation &c) {
+  std::vector<int32_t> data;
+  c.getData([&data](size_t size) {
+    data.resize(size);
+    return data.data();
+  });
+  return std::make_unique<std::vector<int32_t>>(data);
+}
+
+std::unique_ptr<Counter> TTcreateCounter(TimeTaggerNetwork *t, std::vector<int32_t> channels, double bin_width, int32_t max_count) {
+  return std::make_unique<Counter>(t, channels, bin_width, max_count);
+}
+
+std::unique_ptr<std::vector<int32_t>> CounterGetData(Counter &c) {
+  std::vector<int32_t> data;
+  c.getData([&data](size_t size1, size_t size2) {
+    data.resize(size1*size2);
+    return data.data();
+  }, true);
+  return std::make_unique<std::vector<int32_t>>(data);
+}
+
+void CorrelationStart(Correlation &c) {
+  c.start();
+}
+
+void CorrelationStartFor(Correlation &c, long long capture_duration, bool clear = true) {
+  c.startFor(capture_duration, clear);
+}
+
+void CorrelationStop(Correlation &c) {
+  c.stop();
+}
+
+bool CorrelationWaitUntilFinished(Correlation &c, int64_t timeout = -1) {
+  return c.waitUntilFinished(timeout);
+}
