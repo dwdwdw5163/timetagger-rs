@@ -37,7 +37,7 @@ pub mod ffi {
         // Counter functions
         unsafe fn TTcreateCounter(
             t: *mut TimeTaggerNetwork,
-            channels: &CxxVector<i32>,
+            channels: CxxVector<i32>,
             bin_width: f64,
             max_count: i32,
         ) -> UniquePtr<Counter>;
