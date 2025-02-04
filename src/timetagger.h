@@ -16,7 +16,9 @@ public:
   std::vector<int32_t> getCounterData() const;
 
 private:
-  TimeTagger *t;
+//  TimeTagger *t;
+  TimeTaggerNetwork *t;
+
 
   std::unique_ptr<Correlation> c1;
   std::unique_ptr<Correlation> c2;

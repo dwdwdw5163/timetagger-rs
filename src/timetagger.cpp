@@ -7,21 +7,22 @@
 
 
 TT::TT() {
-  t = createTimeTagger();
+//  t = createTimeTagger();
+  t = createTimeTaggerNetwork("169.254.1.200:41101");
+
   t->setTriggerLevel(1, 0.1);
-  t->setTriggerLevel(2, -0.06);
-  t->setTriggerLevel(3, -0.06);
   t->setTriggerLevel(4, -0.06);
   t->setTriggerLevel(5, -0.06);
-  t->setTriggerLevel(6, -0.06);
+  t->setTriggerLevel(7, -0.06);
+  t->setTriggerLevel(8, -0.06);
 
 
-  c1 = std::make_unique<Correlation>(t, 2, 1, 50, 500);
-  c2 = std::make_unique<Correlation>(t, 3, 1, 50, 500);
-  c3 = std::make_unique<Correlation>(t, 5, 1, 50, 500);
-  c4 = std::make_unique<Correlation>(t, 6, 1, 50, 500);
+  c1 = std::make_unique<Correlation>(t, 4, 1, 50, 500);
+  c2 = std::make_unique<Correlation>(t, 5, 1, 50, 500);
+  c3 = std::make_unique<Correlation>(t, 7, 1, 50, 500);
+  c4 = std::make_unique<Correlation>(t, 8, 1, 50, 500);
 
-  cnt = std::make_unique<Counter>(t, std::vector<channel_t>{2,3,5,6}, 1e10, 1000);
+  cnt = std::make_unique<Counter>(t, std::vector<channel_t>{4,5,7,8}, 1e10, 1000);
   std::cout << "TimeTagger Instance Created" << std::endl;
 }
 
