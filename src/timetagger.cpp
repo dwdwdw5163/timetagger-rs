@@ -100,6 +100,7 @@ std::unique_ptr<std::vector<int32_t>> get_correlation_data(const TT &tt) {
 
 
 TimeTaggerNetwork* TTcreateTimeTaggerNetwork(const std::string &address) {
+  std::cout<< "cpp: creating timetagger network" << std::endl;
   return createTimeTaggerNetwork(address);
 }
 
@@ -124,7 +125,7 @@ std::unique_ptr<std::vector<int32_t>> CorrelationGetData(Correlation &c) {
   return std::make_unique<std::vector<int32_t>>(data);
 }
 
-std::unique_ptr<Counter> TTcreateCounter(TimeTaggerNetwork *t, rust::Vec<int32_t> channels, double bin_width, int32_t max_count) {
+std::unique_ptr<Counter> TTcreateCounter(TimeTaggerNetwork *t, rust::Vec<int32_t> channels, int32_t bin_width, int32_t max_count) {
   std::vector<int32_t> cpp_channels;
   std::copy(channels.begin(), channels.end(), std::back_inserter(cpp_channels));
   return std::make_unique<Counter>(t, cpp_channels, bin_width, max_count);

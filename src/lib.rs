@@ -27,7 +27,7 @@ mod ffi {
             channel1: i32,
             channel2: i32,
             bin_width: i32,
-            max_count: i32,
+            n_value: i32,
         ) -> UniquePtr<Correlation>;
 
         fn CorrelationGetData(c: Pin<&mut Correlation>) -> UniquePtr<CxxVector<i32>>;
@@ -40,8 +40,8 @@ mod ffi {
         unsafe fn TTcreateCounter(
             t: *mut TimeTaggerNetwork,
             channels: Vec<i32>,
-            bin_width: f64,
-            max_count: i32,
+            bin_width: i32,
+            n_value: i32,
         ) -> UniquePtr<Counter>;
 
         fn CounterGetData(c: Pin<&mut Counter>) -> UniquePtr<CxxVector<i32>>;
@@ -79,18 +79,24 @@ impl TimeTagger {
 
     pub fn create_correlation(
         &self,
-        channel1: i32,
-        channel2: i32,
+        ref_channel: i32,
+        click_channel: i32,
         bin_width: i32,
         max_count: i32,
     ) -> Correlation {
         let correlation = unsafe {
-            ffi::TTcreateCorrelation(self.instance, channel1, channel2, bin_width, max_count)
+            ffi::TTcreateCorrelation(
+                self.instance,
+                ref_channel,
+                click_channel,
+                bin_width,
+                max_count,
+            )
         };
         Correlation { correlation }
     }
 
-    pub fn create_counter(&self, channels: Vec<i32>, bin_width: f64, max_count: i32) -> Counter {
+    pub fn create_counter(&self, channels: Vec<i32>, bin_width: i32, max_count: i32) -> Counter {
         let counter =
             unsafe { ffi::TTcreateCounter(self.instance, channels, bin_width, max_count) };
         Counter { counter }
@@ -144,6 +150,8 @@ impl Counter {
 mod tests {
     use std::{thread::sleep, time::Duration};
 
+    use ffi::TTsetTriggerLevel;
+
     use super::*;
 
     #[test]
@@ -159,10 +167,20 @@ mod tests {
     #[test]
     fn tt_ffi() {
         let tt = TimeTagger::new("169.254.1.200:41101");
-        let mut c = tt.create_correlation(0, 1, 1000, 1000);
-        c.start_for(1e12 as i64, true);
-        c.wait_until_finished(-1);
-        let data = c.get_data();
+        tt.set_trigger_level(1, 0.1);
+        tt.set_trigger_level(4, -0.03);
+        tt.set_trigger_level(5, -0.03);
+        tt.set_trigger_level(7, -0.03);
+        tt.set_trigger_level(8, -0.03);
+        println!("TimeTagger created");
+        // let mut c = tt.create_correlation(1, 4, 1000, 1000);
+        // c.start_for(1e12 as i64, true);
+        // c.wait_until_finished(-1);
+        // let data = c.get_data();
+        let mut count = tt.create_counter(vec![4, 5, 7, 8], 1e10 as i32, 100);
+        sleep(Duration::from_secs(1));
+        let data = count.get_data();
         println!("{:?}", data);
+        println!("Data Length: {}", data.len());
     }
 }
