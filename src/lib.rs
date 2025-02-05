@@ -79,16 +79,16 @@ impl TimeTagger {
 
     pub fn create_correlation(
         &self,
-        ref_channel: i32,
         click_channel: i32,
+        ref_channel: i32,
         bin_width: i32,
         max_count: i32,
     ) -> Correlation {
         let correlation = unsafe {
             ffi::TTcreateCorrelation(
                 self.instance,
-                ref_channel,
                 click_channel,
+                ref_channel,
                 bin_width,
                 max_count,
             )
