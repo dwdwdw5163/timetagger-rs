@@ -1,6 +1,6 @@
 CompileFlags:
-  Add:
-    - "-std=c++17"
+  Add: 
+    - "-std=c++14"  # 根据项目需求调整 C++ 标准
 QueryDriver:
-  - /usr/bin/g++
+  - /usr/bin/g++     # 替换为你的编译器路径
   - /usr/bin/clang++
