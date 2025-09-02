@@ -3,32 +3,49 @@
 #include "timetagger.h"
 #include <memory>
 #include <timetagger/Iterators.h>
+#include <iostream>
 
 
 
-TT::TT() {
-//  t = createTimeTagger();
-  t = createTimeTaggerNetwork("169.254.1.200:41101");
+using namespace std;
 
-  t->setTriggerLevel(1, 0.1);
-  t->setTriggerLevel(4, -0.06);
-  t->setTriggerLevel(5, -0.06);
-  t->setTriggerLevel(7, -0.06);
-  t->setTriggerLevel(8, -0.06);
+TT::TT(std::string const &address, std::vector<int32_t> const &channels){
+  //  t = createTimeTagger();
+  t = createTimeTaggerNetwork(address);
 
-
-  c1 = std::make_unique<Correlation>(t, 4, 1, 50, 500);
-  c2 = std::make_unique<Correlation>(t, 5, 1, 50, 500);
-  c3 = std::make_unique<Correlation>(t, 7, 1, 50, 500);
-  c4 = std::make_unique<Correlation>(t, 8, 1, 50, 500);
-
-  cnt = std::make_unique<Counter>(t, std::vector<channel_t>{4,5,7,8}, 1e10, 1000);
+  sync_meas = std::make_unique<SynchronizedMeasurements>(t);
+  stream = std::make_unique<TimeTagStream>(sync_meas->getTagger(), 1024*1024*256-1, channels);
+  cnt = std::make_unique<Counter>(t, channels, 1e10, 1000);
   std::cout << "TimeTagger Instance Created" << std::endl;
 }
 
 TT::~TT() {
   freeTimeTagger(t);
   std::cout << "TimeTagger Instance Destroyed" << std::endl;
+}
+
+void TT::syncStart() const {
+  if (sync_meas) {
+    sync_meas->start();
+  }
+}
+
+void TT::syncStop() const {
+  if (sync_meas) {
+    sync_meas->stop();
+  }
+}
+
+void TT::syncStartFor(long long duration) const {
+  if (sync_meas) {
+    sync_meas->startFor(duration);
+  }
+}
+
+void TT::syncWaitUntilFinished() const {
+  if (sync_meas) {
+    sync_meas->waitUntilFinished();
+  }
 }
 
 std::vector<int32_t> TT::getCounterData() const {
@@ -42,58 +59,47 @@ std::vector<int32_t> TT::getCounterData() const {
   return data;
 }
 
+std::vector<long long> TT::getTimestamps() const {
+  TimeTagStreamBuffer data_buffer = stream->getData();
 
-std::vector<int32_t> TT::getCorrelationData() const{
-  std::vector<int32_t> data;
-  std::vector<int32_t> data1, data2, data3, data4;
-
-  c1->getData([&data1](size_t size) {
-      data1.resize(size);
-      return data1.data();
+  vector<timestamp_t> timestamps;
+  data_buffer.getTimestamps([&timestamps](size_t size)
+  {
+      timestamps.resize(size);
+      return timestamps.data();
   });
-
-  c2->getData([&data2](size_t size) {
-    data2.resize(size);
-    return data2.data();
-  });
-
-  c3->getData([&data3](size_t size) {
-    data3.resize(size);
-    return data3.data();
-  });
-
-  c4->getData([&data4](size_t size) {
-    data4.resize(size);
-    return data4.data();
-  });
-
-  data.insert(data.end(), data1.begin(), data1.end());
-  data.insert(data.end(), data2.begin(), data2.end());
-  data.insert(data.end(), data3.begin(), data3.end());
-  data.insert(data.end(), data4.begin(), data4.end());
-
-  c1->clear();
-  c2->clear();
-  c3->clear();
-  c4->clear();  
-
-  return data;
+  return timestamps;
 }
 
 
-std::unique_ptr<TT> new_timetagger() {
-  return std::make_unique<TT>();
+std::vector<int32_t> TT::getChannels() const {
+  TimeTagStreamBuffer data_buffer = stream->getData();
+  vector<channel_t> channels;
+
+  data_buffer.getChannels([&channels](size_t size)
+  {
+      channels.resize(size);
+      return channels.data();
+  });
+  return channels;
+}
+
+
+// std::unique_ptr<TT> new_timetagger(rust::String address, const rust::Vec<int32_t> &channels) {
+//   return std::make_unique<TT>(address, channels);
+// }
+
+std::unique_ptr<std::vector<int32_t>> get_channel_data(const TT &tt) {
+  return std::make_unique<std::vector<int32_t>>(tt.getChannels());
+}
+
+std::unique_ptr<std::vector<long long>> get_timestamp_data(const TT &tt) {
+  return std::make_unique<std::vector<long long>>(tt.getTimestamps());
 }
 
 std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt) {
-  std::vector<int32_t> data = tt.getCounterData();
-  return std::make_unique<std::vector<int32_t>>(data);
+  return std::make_unique<std::vector<int32_t>>(tt.getCounterData());
 }
 
-
-std::unique_ptr<std::vector<int32_t>> get_correlation_data(const TT &tt) {
-  std::vector<int32_t> data = tt.getCorrelationData();
-  return std::make_unique<std::vector<int32_t>>(data);
-}
 
 
