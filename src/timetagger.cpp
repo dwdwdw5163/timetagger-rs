@@ -105,3 +105,6 @@ std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt) {
   return std::make_unique<TimeTagStreamBuffer>(tt.stream->getData());
 }
 
+void sync_start_for(const TT &tt, int64_t duration) {
+  tt.syncStartFor(duration);
+}

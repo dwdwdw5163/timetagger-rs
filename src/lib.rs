@@ -4,14 +4,19 @@ pub mod ffi {
         include!("timetagger-rs/src/timetagger.h");
         pub type TT;
         pub type TTBuffer;
-//         std::unique_ptr<TT> new_timetagger(rust::String address, const rust::Vec<int32_t> &channels);
-//         std::unique_ptr<std::vector<int32_t>> get_channel_data(const TT &tt);
-//         std::unique_ptr<std::vector<long long>> get_timestamp_data(const TT &tt);
-//         std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);
+        // std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels);
+        // std::unique_ptr<std::vector<int32_t>> get_channel_data( TTBuffer *buffer);
+        // std::unique_ptr<std::vector<int64_t>> get_timestamp_data( TTBuffer *buffer);
+        // std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);
+        // std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt);
+        // void sync_start_for(const TT &tt, int64_t duration);
+
         pub fn new_timetagger(address: &CxxString, channels: &CxxVector<i32>) -> UniquePtr<TT>;
         pub unsafe fn get_channel_data(buffer: *mut TTBuffer) -> UniquePtr<CxxVector<i32>>;
         pub unsafe fn get_timestamp_data(buffer: *mut TTBuffer) -> UniquePtr<CxxVector<i64>>;
         pub fn get_counter_data(tt: &TT) -> UniquePtr<CxxVector<i32>>;
+        pub fn get_tag_buffer(tt: &TT) -> UniquePtr<TTBuffer>;
+        pub fn sync_start_for(tt: &TT, duration: i64);
     }
 }
 unsafe impl Send for ffi::TT {}
@@ -35,5 +40,15 @@ mod tests {
         channels.as_mut().unwrap().push(8);
 
         let tt = ffi::new_timetagger(&addr, &channels);
+        ffi::sync_start_for(&tt, 1e12 as i64); // 1 second
+        let mut buffer = ffi::get_tag_buffer(&tt);
+        let timestamps = unsafe { ffi::get_timestamp_data(buffer.as_mut_ptr()) };
+        let channels = unsafe { ffi::get_channel_data(buffer.as_mut_ptr()) };
+        println!("Got {} events", timestamps.as_ref().unwrap().len());
+        for i in 0..timestamps.as_ref().unwrap().len().min(10) {
+            println!("Event {}: time {} ns, channel {}", i, timestamps.as_slice()[i], channels.as_slice()[i]);
+        }
+        let counters = ffi::get_counter_data(&tt);
+        println!("Counters: {:?}", counters);
     }
 }

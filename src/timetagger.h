@@ -40,5 +40,6 @@ std::unique_ptr<std::vector<int32_t>> get_channel_data( TTBuffer *buffer);
 std::unique_ptr<std::vector<int64_t>> get_timestamp_data( TTBuffer *buffer);
 std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);
 std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt);
+void sync_start_for(const TT &tt, int64_t duration);
 
 #endif // TIMETAGGER_H
