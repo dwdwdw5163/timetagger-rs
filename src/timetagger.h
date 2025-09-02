@@ -7,37 +7,38 @@
 #include <vector>
 #include <memory>
 
-// #include "rust/cxx.h"
+ // #include "rust/cxx.h"
 
+typedef TimeTagStreamBuffer TTBuffer;
 
 class TT {
 public:
+    TimeTaggerNetwork *t;
+    std::unique_ptr<SynchronizedMeasurements> sync_meas;
+    std::unique_ptr<TimeTagStream> stream;
+    std::unique_ptr<Counter> cnt;
+
   TT(std::string const &address, std::vector<int32_t> const &channels);
   ~TT();
 
-  void syncStart() const;
-  void syncStop() const;
-  void syncStartFor(long long duration) const;
-  void syncWaitUntilFinished() const;
+  void syncStartFor(int64_t duration) const;
   std::vector<int32_t> getChannels() const;
-  std::vector<long long> getTimestamps() const;
+  std::vector<int64_t> getTimestamps() const;
   std::vector<int32_t> getCounterData() const;
 
 
 private:
 //  TimeTagger *t;
-  TimeTaggerNetwork *t;
 
-  std::unique_ptr<SynchronizedMeasurements> sync_meas;
-  std::unique_ptr<TimeTagStream> stream;
-  std::unique_ptr<Counter> cnt;
+
 };
 
 
 // Rust API
-// std::unique_ptr<TT> new_timetagger(rust::String address, const rust::Vec<int32_t> &channels);
-std::unique_ptr<std::vector<int32_t>> get_channel_data(const TT &tt);
-std::unique_ptr<std::vector<long long>> get_timestamp_data(const TT &tt);
+std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels);
+std::unique_ptr<std::vector<int32_t>> get_channel_data( TTBuffer *buffer);
+std::unique_ptr<std::vector<int64_t>> get_timestamp_data( TTBuffer *buffer);
 std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);
+std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt);
 
 #endif // TIMETAGGER_H

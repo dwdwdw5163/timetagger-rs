@@ -2,6 +2,7 @@ fn main() {
     cxx_build::bridge("src/lib.rs")
         .file("src/timetagger.cpp")
         .std("c++14")
+        .flag("-I/usr/include/timetagger")
         .flag_if_supported("/MD")  // Multithreaded DLL runtime
         .flag_if_supported("/O2")  // Optimize for speed
         .flag_if_supported("/DNDEBUG")  // Define NDEBUG for release builds

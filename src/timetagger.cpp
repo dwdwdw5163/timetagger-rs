@@ -9,6 +9,7 @@
 
 using namespace std;
 
+
 TT::TT(std::string const &address, std::vector<int32_t> const &channels){
   //  t = createTimeTagger();
   t = createTimeTaggerNetwork(address);
@@ -16,6 +17,7 @@ TT::TT(std::string const &address, std::vector<int32_t> const &channels){
   sync_meas = std::make_unique<SynchronizedMeasurements>(t);
   stream = std::make_unique<TimeTagStream>(sync_meas->getTagger(), 1024*1024*256-1, channels);
   cnt = std::make_unique<Counter>(t, channels, 1e10, 1000);
+
   std::cout << "TimeTagger Instance Created" << std::endl;
 }
 
@@ -24,26 +26,11 @@ TT::~TT() {
   std::cout << "TimeTagger Instance Destroyed" << std::endl;
 }
 
-void TT::syncStart() const {
-  if (sync_meas) {
-    sync_meas->start();
-  }
-}
 
-void TT::syncStop() const {
-  if (sync_meas) {
-    sync_meas->stop();
-  }
-}
 
-void TT::syncStartFor(long long duration) const {
+void TT::syncStartFor(int64_t duration) const {
   if (sync_meas) {
     sync_meas->startFor(duration);
-  }
-}
-
-void TT::syncWaitUntilFinished() const {
-  if (sync_meas) {
     sync_meas->waitUntilFinished();
   }
 }
@@ -59,7 +46,7 @@ std::vector<int32_t> TT::getCounterData() const {
   return data;
 }
 
-std::vector<long long> TT::getTimestamps() const {
+std::vector<int64_t> TT::getTimestamps() const {
   TimeTagStreamBuffer data_buffer = stream->getData();
 
   vector<timestamp_t> timestamps;
@@ -68,7 +55,7 @@ std::vector<long long> TT::getTimestamps() const {
       timestamps.resize(size);
       return timestamps.data();
   });
-  return timestamps;
+  return {timestamps.begin(), timestamps.end()};
 }
 
 
@@ -85,21 +72,36 @@ std::vector<int32_t> TT::getChannels() const {
 }
 
 
-// std::unique_ptr<TT> new_timetagger(rust::String address, const rust::Vec<int32_t> &channels) {
-//   return std::make_unique<TT>(address, channels);
-// }
+ std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels) {
+   return std::make_unique<TT>(address, channels);
+ }
 
-std::unique_ptr<std::vector<int32_t>> get_channel_data(const TT &tt) {
-  return std::make_unique<std::vector<int32_t>>(tt.getChannels());
+std::unique_ptr<std::vector<int32_t>> get_channel_data(TTBuffer *buffer) {
+  vector<channel_t> channels;
+
+  buffer->getChannels([&channels](size_t size)
+  {
+      channels.resize(size);
+      return channels.data();
+  });
+  return std::make_unique<std::vector<int32_t>>(channels);
 }
 
-std::unique_ptr<std::vector<long long>> get_timestamp_data(const TT &tt) {
-  return std::make_unique<std::vector<long long>>(tt.getTimestamps());
+std::unique_ptr<std::vector<int64_t>> get_timestamp_data(TTBuffer *buffer) {
+  vector<timestamp_t> timestamps;
+  buffer->getTimestamps([&timestamps](size_t size)
+  {
+      timestamps.resize(size);
+      return timestamps.data();
+  });
+  return make_unique<std::vector<int64_t>>(timestamps.begin(), timestamps.end());
 }
 
 std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt) {
   return std::make_unique<std::vector<int32_t>>(tt.getCounterData());
 }
 
-
+std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt) {
+  return std::make_unique<TimeTagStreamBuffer>(tt.stream->getData());
+}
 
