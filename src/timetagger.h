@@ -4,6 +4,7 @@
 
 #include "timetagger/TimeTagger.h"
 #include "timetagger/Iterators.h"
+#include <cstdint>
 #include <vector>
 #include <memory>
 
@@ -18,7 +19,7 @@ public:
     std::unique_ptr<TimeTagStream> stream;
     std::unique_ptr<Counter> cnt;
 
-  TT(std::string const &address, std::vector<int32_t> const &channels);
+  TT(std::string const &address, std::vector<int32_t> const &channels, int32_t ref_channel);
   ~TT();
 
   void syncStartFor(int64_t duration) const;
@@ -35,7 +36,7 @@ private:
 
 
 // Rust API
-std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels);
+std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels, int32_t ref_channel);
 std::unique_ptr<std::vector<int32_t>> get_channel_data( TTBuffer *buffer);
 std::unique_ptr<std::vector<int64_t>> get_timestamp_data( TTBuffer *buffer);
 std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);

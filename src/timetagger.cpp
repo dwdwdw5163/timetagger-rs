@@ -1,22 +1,28 @@
 // Created by iqt on 1/6/25
 
 #include "timetagger.h"
+#include <cstdint>
 #include <memory>
 #include <timetagger/Iterators.h>
 #include <iostream>
+#include <vector>
 
 
 
 using namespace std;
 
 
-TT::TT(std::string const &address, std::vector<int32_t> const &channels){
+TT::TT(std::string const &address, std::vector<int32_t> const &channels, int32_t ref_channel){
   //  t = createTimeTagger();
   t = createTimeTaggerNetwork(address);
 
   sync_meas = std::make_unique<SynchronizedMeasurements>(t);
-  stream = std::make_unique<TimeTagStream>(sync_meas->getTagger(), 1024*1024*256-1, channels);
-  cnt = std::make_unique<Counter>(t, channels, 1e10, 1000);
+  auto tagger = sync_meas->getTagger();
+
+  std::vector<int32_t> stream_channels(channels.begin(), channels.end());
+  stream_channels.push_back(ref_channel);
+  stream = std::make_unique<TimeTagStream>(tagger, 1024*1024*256-1, stream_channels);
+  cnt = std::make_unique<Counter>(tagger, channels, 1e10, 100);
 
   std::cout << "TimeTagger Instance Created" << std::endl;
 }
@@ -72,8 +78,8 @@ std::vector<int32_t> TT::getChannels() const {
 }
 
 
- std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels) {
-   return std::make_unique<TT>(address, channels);
+ std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels, int32_t ref_channel) {
+   return std::make_unique<TT>(address, channels, ref_channel);
  }
 
 std::unique_ptr<std::vector<int32_t>> get_channel_data(TTBuffer *buffer) {
