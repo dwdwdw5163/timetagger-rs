@@ -22,7 +22,7 @@ TT::TT(std::string const &address, std::vector<int32_t> const &channels, int32_t
   std::vector<int32_t> stream_channels(channels.begin(), channels.end());
   stream_channels.push_back(ref_channel);
   stream = std::make_unique<TimeTagStream>(tagger, 1024*1024*256-1, stream_channels);
-  cnt = std::make_unique<Counter>(tagger, channels, 1e10, 100);
+  cnt = std::make_unique<Countrate>(tagger, channels);
 
   std::cout << "TimeTagger Instance Created" << std::endl;
 }
@@ -41,13 +41,13 @@ void TT::syncStartFor(int64_t duration) const {
   }
 }
 
-std::vector<int32_t> TT::getCounterData() const {
-  std::vector<int32_t> data;
+std::vector<double> TT::getCountrate() const {
+  std::vector<double> data;
 
-  cnt->getData([&data](size_t size1, size_t size2) {
-    data.resize(size1*size2);
+  cnt->getData([&data](size_t size) {
+    data.resize(size);
     return data.data();
-  }, true);
+  });
 
   return data;
 }
@@ -103,8 +103,8 @@ std::unique_ptr<std::vector<int64_t>> get_timestamp_data(TTBuffer *buffer) {
   return make_unique<std::vector<int64_t>>(timestamps.begin(), timestamps.end());
 }
 
-std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt) {
-  return std::make_unique<std::vector<int32_t>>(tt.getCounterData());
+std::unique_ptr<std::vector<double>> get_countrate(const TT &tt) {
+  return std::make_unique<std::vector<double>>(tt.getCountrate());
 }
 
 std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt) {

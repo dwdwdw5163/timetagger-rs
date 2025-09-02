@@ -17,7 +17,7 @@ public:
     TimeTaggerNetwork *t;
     std::unique_ptr<SynchronizedMeasurements> sync_meas;
     std::unique_ptr<TimeTagStream> stream;
-    std::unique_ptr<Counter> cnt;
+    std::unique_ptr<Countrate> cnt;
 
   TT(std::string const &address, std::vector<int32_t> const &channels, int32_t ref_channel);
   ~TT();
@@ -25,7 +25,7 @@ public:
   void syncStartFor(int64_t duration) const;
   std::vector<int32_t> getChannels() const;
   std::vector<int64_t> getTimestamps() const;
-  std::vector<int32_t> getCounterData() const;
+  std::vector<double> getCountrate() const;
 
 
 private:
@@ -39,7 +39,7 @@ private:
 std::unique_ptr<TT> new_timetagger(const std::string &address, const std::vector<int32_t> &channels, int32_t ref_channel);
 std::unique_ptr<std::vector<int32_t>> get_channel_data( TTBuffer *buffer);
 std::unique_ptr<std::vector<int64_t>> get_timestamp_data( TTBuffer *buffer);
-std::unique_ptr<std::vector<int32_t>> get_counter_data(const TT &tt);
+std::unique_ptr<std::vector<double>> get_countrate(const TT &tt);
 std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt);
 void sync_start_for(const TT &tt, int64_t duration);
 
