@@ -1,7 +1,8 @@
 mod ffi;
 
-use ffi::ffi::*;
 use cxx::{let_cxx_string, CxxVector, UniquePtr};
+use ffi::ffi::*;
+use std::fmt::Debug;
 
 pub struct TimeTagger {
     tt: UniquePtr<TT>,
@@ -23,9 +24,7 @@ impl TimeTagger {
 
         let tt = new_timetagger(&addr, &_channels, ref_channel);
 
-        TimeTagger {
-            tt
-        }
+        TimeTagger { tt }
     }
     // pub unsafe fn get_channel_data(buffer: *mut TTBuffer) -> UniquePtr<CxxVector<i32>>;
     // pub unsafe fn get_timestamp_data(buffer: *mut TTBuffer) -> UniquePtr<CxxVector<i64>>;
@@ -36,15 +35,32 @@ impl TimeTagger {
         sync_start_for(&self.tt, duration);
     }
     pub fn get_countrate(&self) -> Vec<f64> {
-        get_countrate(&self.tt).iter().map(|x| x.to_owned()).collect()
+        get_countrate(&self.tt)
+            .iter()
+            .map(|x| x.to_owned())
+            .collect()
     }
 
     pub fn get_tag_buffer(&self) -> Vec<TimeTag> {
         let buffer = get_tag_buffer(&self.tt);
-        let channels = unsafe {get_channel_data(buffer.as_mut_ptr())};
+        let channels = unsafe { get_channel_data(buffer.as_mut_ptr()) };
         let timestamps = unsafe { get_timestamp_data(buffer.as_mut_ptr()) };
-        channels.iter().zip(timestamps.iter()).map(|(c, t)| TimeTag {channel: c.to_owned(), timestamp: t.to_owned()}).collect()
+        channels
+            .iter()
+            .zip(timestamps.iter())
+            .map(|(c, t)| TimeTag {
+                channel: c.to_owned(),
+                timestamp: t.to_owned(),
+            })
+            .collect()
     }
+}
+
+impl Debug for TimeTagger {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("TimeTagger").finish()
+    }
+    
 }
 
 #[cfg(test)]
@@ -56,7 +72,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let tt = TimeTagger::new("192.168.0.200".to_string(), vec![4,5,7,8], -1);
+        let tt = TimeTagger::new("192.168.0.200".to_string(), vec![4, 5, 7, 8], -1);
         tt.sync_start_for(1e12 as i64);
         let data = tt.get_tag_buffer();
         let rates = tt.get_countrate();
