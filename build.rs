@@ -3,14 +3,12 @@ fn main() {
         .file("src/timetagger.cpp")
         .std("c++14")
         .flag("-I/usr/include/timetagger")
-        .flag_if_supported("/MD")  // Multithreaded DLL runtime
-        .flag_if_supported("/O2")  // Optimize for speed
-        .flag_if_supported("/DNDEBUG")  // Define NDEBUG for release builds
+        .flag("-O3") // Optimize for speed
+        .flag("-DNDEBUG") // Disable assertions
         .compile("TT-rs");
 
     println!("cargo:rerun-if-changed=src/ffi.rs");
     println!("cargo:rerun-if-changed=src/timetagger.cpp");
     println!("cargo:rerun-if-changed=src/timetagger.h");
     println!("cargo:rustc-link-lib=TimeTagger"); // If your platform needs linking against stdc++
-
 }
