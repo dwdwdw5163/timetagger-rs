@@ -41,6 +41,11 @@ void TT::syncStartFor(int64_t duration) const {
   }
 }
 
+void TT::syncStart() const {
+  if (sync_meas) {
+    sync_meas->start();
+  }
+}
 std::vector<double> TT::getCountrate() const {
   std::vector<double> data;
 
@@ -113,4 +118,9 @@ std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt) {
 
 void sync_start_for(const TT &tt, int64_t duration) {
   tt.syncStartFor(duration);
+}
+
+
+void sync_start(const TT &tt) {
+  tt.syncStart();
 }

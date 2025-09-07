@@ -23,6 +23,7 @@ public:
   ~TT();
 
   void syncStartFor(int64_t duration) const;
+  void syncStart(void) const;
   std::vector<int32_t> getChannels() const;
   std::vector<int64_t> getTimestamps() const;
   std::vector<double> getCountrate() const;
@@ -42,5 +43,6 @@ std::unique_ptr<std::vector<int64_t>> get_timestamp_data( TTBuffer *buffer);
 std::unique_ptr<std::vector<double>> get_countrate(const TT &tt);
 std::unique_ptr<TimeTagStreamBuffer> get_tag_buffer(const TT &tt);
 void sync_start_for(const TT &tt, int64_t duration);
+void sync_start(const TT &tt);
 
 #endif // TIMETAGGER_H

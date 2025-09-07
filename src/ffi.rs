@@ -21,11 +21,8 @@ pub mod ffi {
         pub fn get_countrate(tt: &TT) -> UniquePtr<CxxVector<f64>>;
         pub fn get_tag_buffer(tt: &TT) -> UniquePtr<TTBuffer>;
         pub fn sync_start_for(tt: &TT, duration: i64);
+        pub fn sync_start(tt: &TT);
     }
 }
 unsafe impl Send for ffi::TT {}
 unsafe impl Sync for ffi::TT {}
-
-
-
-

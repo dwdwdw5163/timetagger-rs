@@ -34,6 +34,9 @@ impl TimeTagger {
     pub fn sync_start_for(&self, duration: i64) {
         sync_start_for(&self.tt, duration);
     }
+    pub fn sync_start(&self) {
+        sync_start(&self.tt);
+    }
     pub fn get_countrate(&self) -> Vec<f64> {
         get_countrate(&self.tt)
             .iter()
@@ -60,7 +63,6 @@ impl Debug for TimeTagger {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("TimeTagger").finish()
     }
-    
 }
 
 #[cfg(test)]
